@@ -90,13 +90,13 @@ DO ISTEP=1,NSTEP
     AY=SQRT(-2.0*LOG(R(2)))*COS(2.0*PI*S(2))
     AZ=SQRT(-2.0*LOG(R(3)))*COS(2.0*PI*S(3))
 
-    x(i,1)=x(i,1)+f(i,1)+DT+(VAR*AX)
-    x(i,2)=x(i,2)+f(i,2)+DT+(VAR*AY)
-    x(i,3)=x(i,3)+f(i,3)+DT+(VAR*AZ)
+    x(i,1)=x(i,1)+f(i,1)*DT+(VAR*AX)
+    x(i,2)=x(i,2)+f(i,2)*DT+(VAR*AY)
+    x(i,3)=x(i,3)+f(i,3)*DT+(VAR*AZ)
 
-    xr(i,1)=xr(i,1)+f(i,1)+DT+(VAR*AX)
-    xr(i,2)=xr(i,2)+f(i,2)+DT+(VAR*AY)
-    xr(i,3)=xr(i,3)+f(i,3)+DT+(VAR*AZ)
+    xr(i,1)=xr(i,1)+f(i,1)*DT+(VAR*AX)
+    xr(i,2)=xr(i,2)+f(i,2)*DT+(VAR*AY)
+    xr(i,3)=xr(i,3)+f(i,3)*DT+(VAR*AZ)
 
     !INCLUYENDO CONDICIONES PERIODICAS
     x(i,1)=x(i,1)-BOXL*ANINT(x(i,1)/BOXL)
