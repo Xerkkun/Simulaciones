@@ -37,7 +37,7 @@ SUBROUTINE GDR(cx,cy,cz,NTMAX,BOXL,DENS,N,GRC,PRESION)
 
           r0t = SQRT(xi0t**2 + yi0t**2 + zi0t**2)
           NBIN = INT(r0t/DELTAR)+1
-          print*, NBIN
+
           IF(NBIN.LE.MAXBIN)THEN
             NHIST(NBIN) = NHIST(NBIN)+1
           END IF

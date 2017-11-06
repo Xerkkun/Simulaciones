@@ -8,7 +8,7 @@ PROGRAM DBGAYLOR
 IMPLICIT REAL (A-H,O-Z)
 
 !DECLARACION DE VARIABLES
-CHARACTER(len=20)              ::ARCHIVO
+!CHARACTER(len=20)              ::ARCHIVO
 INTEGER,DIMENSION(1000)        ::nseed
 REAL,DIMENSION(3)              ::R,S
 REAL,ALLOCATABLE,DIMENSION(:,:)::cx,cy,cz,cxr,cyr,czr,xr,x,f
@@ -23,10 +23,10 @@ nCONF  = 1 !1) ALEATORIA, 2) REGULAR
 nd     = 3       !2) 2D , 3) 3D
 N      = 225     !NUMERO DE PARTICULAS
 SIGMA  = 1.0     !DIAMETRO DE LAS PARTICULAS
-NSTEP  = 415000  !NUMERO DE CONFIGURACIONES
-NENER  = 15000   !CONFIGURACIONES FUERA DE EQUILIBRIO
-NFREC  = 100
-NFREC2 = 100
+NSTEP  = 15000  !NUMERO DE CONFIGURACIONES
+NENER  = 5000   !CONFIGURACIONES FUERA DE EQUILIBRIO
+NFREC  = 10
+NFREC2 = 10
 DT     = 0.0004
 
 !CALCULOS PRELIMINARES
@@ -90,13 +90,13 @@ DO ISTEP=1,NSTEP
     AY=SQRT(-2.0*LOG(R(2)))*COS(2.0*PI*S(2))
     AZ=SQRT(-2.0*LOG(R(3)))*COS(2.0*PI*S(3))
 
-    x(i,1)=x(i,1)+f(i,1)+DT+(VAR*AX)
-    x(i,2)=x(i,2)+f(i,2)+DT+(VAR*AY)
-    x(i,3)=x(i,3)+f(i,3)+DT+(VAR*AZ)
+    x(i,1)=x(i,1)+f(i,1)*DT+(VAR*AX)
+    x(i,2)=x(i,2)+f(i,2)*DT+(VAR*AY)
+    x(i,3)=x(i,3)+f(i,3)*DT+(VAR*AZ)
 
-    xr(i,1)=xr(i,1)+f(i,1)+DT+(VAR*AX)
-    xr(i,2)=xr(i,2)+f(i,2)+DT+(VAR*AY)
-    xr(i,3)=xr(i,3)+f(i,3)+DT+(VAR*AZ)
+    xr(i,1)=xr(i,1)+f(i,1)*DT+(VAR*AX)
+    xr(i,2)=xr(i,2)+f(i,2)*DT+(VAR*AY)
+    xr(i,3)=xr(i,3)+f(i,3)*DT+(VAR*AZ)
 
     !INCLUYENDO CONDICIONES PERIODICAS
     x(i,1)=x(i,1)-BOXL*ANINT(x(i,1)/BOXL)
