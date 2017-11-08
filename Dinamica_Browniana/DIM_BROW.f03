@@ -16,7 +16,6 @@ REAL,PARAMETER                 ::PI = 3.14159
 OPEN(20,FILE="terma.dat",STATUS="REPLACE",ACTION="WRITE")
 WRITE(FINAL , '(A,F6.3,A)') "fin",DENS,"dat"
 OPEN(30,FILE=FINAL,STATUS="REPLACE",ACTION="WRITE")
-OPEN(40,FILE="numeros.dat",STATUS="REPLACE",ACTION="WRITE")
 
 !===============================================================================
 WRITE(*,*)"CODIGO DE DINAMICA BROWNIANA V0"
@@ -92,7 +91,7 @@ DO ISTEP=1,NSTEP
     AX=SQRT(-2.0*LOG(R(1)))*COS(2.0*PI*S(1))
     AY=SQRT(-2.0*LOG(R(2)))*COS(2.0*PI*S(2))
     AZ=SQRT(-2.0*LOG(R(3)))*COS(2.0*PI*S(3))
-    WRITE(40,*) AX,AY,AZ
+
     x(i,1)=x(i,1)+f(i,1)*DT+(VAR*AX)
     x(i,2)=x(i,2)+f(i,2)*DT+(VAR*AY)
     x(i,3)=x(i,3)+f(i,3)*DT+(VAR*AZ)
