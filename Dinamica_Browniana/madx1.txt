@@ -1,0 +1,8 @@
+angle=2*pi/1232;
+value,angle;
+dx=gauss()*2.0;
+value,dx;
+value,dx;
+dx:=gauss()*2.0;
+value,dx;
+value,dx;
