@@ -1,6 +1,6 @@
 MODULE FUNC_RAD
 CONTAINS
-SUBROUTINE GDR(cx,cy,NTMAX,BOXL,DENS,N,GRC,PRESION)
+SUBROUTINE GDR(cx,cy,cz,NTMAX,BOXL,DENS,N,GRC,PRESION)
   IMPLICIT REAL*4(A-H,O-Z)
 !===============================================================================
 !DECLARACION DE VARIABLES
@@ -8,12 +8,12 @@ SUBROUTINE GDR(cx,cy,NTMAX,BOXL,DENS,N,GRC,PRESION)
   INTEGER,ALLOCATABLE :: NHIST(:)
   INTEGER             :: i,j,k,NTMAX,MAXBIN,N
   REAL,PARAMETER      :: PI = 3.14159
-  REAL,ALLOCATABLE    :: cx(:,:),cy(:,:)
+  REAL,ALLOCATABLE    :: cx(:,:),cy(:,:),cz(:,:)
 !===============================================================================
 !CALCULOS PRELIMINARES
   DELTAR = 0.01
   MAXBIN = INT(BOXL/(2*DELTAR))
-  ALLOCATE(NHIST(MAXBIN))
+  ALLOCATE(NHIST(MAXBIN+50))
 !===============================================================================
 
   NHIST(:) = 0
@@ -29,12 +29,17 @@ SUBROUTINE GDR(cx,cy,NTMAX,BOXL,DENS,N,GRC,PRESION)
           yit = cy(j,k)
           yi0t = yi0 - yit
 
+          zi0 = cz(i,k)
+          zit = cz(j,k)
+          zi0t = zi0 - zit
+
           !CONDICION DE IMAGEN MINIMA
           xi0t = xi0t-BOXL*ANINT(xi0t/BOXL)
           yi0t = yi0t-BOXL*ANINT(yi0t/BOXL)
+          zi0t = zi0t-BOXL*ANINT(zi0t/BOXL)
 
           !CALCULO DE LA DISTANCIA ENTRE LA I-ESIMA Y LA J-ESIMA
-          r0t = SQRT(xi0t**2 + yi0t**2)
+          r0t = SQRT(xi0t**2 + yi0t**2 + zi0t**2)
 
           !CUANTAS VECES CABE DELTAR EN R0T
           NBIN = INT(r0t/DELTAR)+1
@@ -48,17 +53,19 @@ SUBROUTINE GDR(cx,cy,NTMAX,BOXL,DENS,N,GRC,PRESION)
       END IF
     END DO
   END DO
+
 !===============================================================================
   WRITE(ARCHIVO , '(A,F6.3,A)') "gr",DENS,".dat"
   OPEN(50,FILE=ARCHIVO,STATUS="REPLACE",ACTION="WRITE")
 !===============================================================================
 !CALCULO DE LA G(R)
-C1 = PI*DENS
+C1 = 4.0*PI*DENS/3.0
+
   DO NBIN=1,MAXBIN
     RL = REAL(NBIN-1)*DELTAR
     RU = RL + DELTAR
     RT = RL + DELTAR/2
-    C2 = C1*(RU**2-RL**2)
+    C2 = C1*(RU**3-RL**3)
     GDRTA = REAL(NHIST(NBIN))/(REAL(NTMAX)*REAL(N)*C2)
     WRITE(50,*)RT,GDRTA
 !===============================================================================

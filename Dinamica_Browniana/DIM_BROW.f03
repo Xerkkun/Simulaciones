@@ -2,6 +2,7 @@ PROGRAM DBGAYLOR
   USE INICIAL
   USE FRZAS
   USE FUNC_RAD
+  USE W
 !-------------------------------------------------------------------------------
 !PROGRAMA MAESTRO DE SIMULACION
 !-------------------------------------------------------------------------------
@@ -36,10 +37,9 @@ A      = 1.0/REAL(nd)
 !AA Y ZK PARAMETROS DEL POTENCIAL
 AA     = 556.0
 ZK     = 0.149
-
+AA     = AA*EXP(ZK)
 PHI    = 4.4E-4
 DENS   = 6.0*PHI/PI
-print*, DENS
 
 !DIMENSIONES DE LA CAJA
 BOXL   = ((REAL(N))/DENS)**(A)
@@ -134,10 +134,9 @@ DO ISTEP=1,NSTEP
       cxr(i,KI2) = xr(i,1)
       cyr(i,KI2) = xr(i,2)
       czr(i,KI2) = xr(i,3)
-
     END DO
-
   END IF
+
 CALL FUERZAS(AA,ZK,RCUT,BOXL,N,ISTEP,ENPOT,x,f)
 EN = ENPOT/REAL(N)
 WRITE(20,*) ISTEP,EN
@@ -147,7 +146,7 @@ CLOSE(20)
 CLOSE(30)
 !CALCULO DE LA FUNCION DE DISTRIBUCION RADIAL
 CALL GDR(cx,cy,cz,KI,BOXL,DENS,N,GRC,PRESION)
-
+CALL WDT(cxr,cyr,czr,KI2,DT,NFREC2,N)
 
 !===============================================================================
   PRINT*, "NUMERO DE ATOMOS:          ", N

@@ -20,7 +20,7 @@ DO i=1,N-1
     !CONDICION DE IMAGEN MINIMA
     rijx = rijx - BOXL*(ANINT(rijx/BOXL))
     rijy = rijy - BOXL*(ANINT(rijy/BOXL))
-    rijz = rijz - BOXL*(ANINT(rijx/BOXL))
+    rijz = rijz - BOXL*(ANINT(rijz/BOXL))
 
     rr = SQRT(rijx**2 + rijy**2 + rijz**2)
 

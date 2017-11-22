@@ -12,53 +12,57 @@ CHARACTER(len=20)       ::ARCHIVO,FINAL,VIS
 INTEGER                 ::nCONF,N,nd,NSTEP,KI2,l,ms,ISTEP,iseedn,NENER,NN2,i
 INTEGER,DIMENSION(1000) ::nseed
 REAL*4,ALLOCATABLE      ::xseed(:)
-REAL*4,ALLOCATABLE      ::x(:,:),rnum(:,:),cx(:,:),cy(:,:)
+REAL*4,ALLOCATABLE      ::x(:,:),rnum(:,:),cx(:,:),cy(:,:),cz(:,:)
+REAL,PARAMETER          ::PI = 3.14159
 !===============================================================================
 WRITE(*,*)"CODIGO DE MONTECARLO V0"
 !ADQUIRIR PARAMETROS
-WRITE(*,*) "SELECCIONE EL TIPO DE CONFIGURACION QUE DESEA:"
-WRITE(*,*) "1)ALEATORIA"
-WRITE(*,*) "2)REGULAR"
-READ*, nCONF
+!WRITE(*,*) "SELECCIONE EL TIPO DE CONFIGURACION QUE DESEA:"
+!WRITE(*,*) "1)ALEATORIA"
+!WRITE(*,*) "2)REGULAR"
+!READ*, nCONF
+nCONF = 1
+!WRITE(*,*) "INDIQUE EL NUMERO DE DIMENSIONES DESEADA:"
+!WRITE(*,*) "2) BIDIMENSIONAL"
+!WRITE(*,*) "3) TRIDIMENSIONAL"
+!READ*,nd
+nd = 3
 
-WRITE(*,*) "INDIQUE EL NUMERO DE DIMENSIONES DESEADA:"
-WRITE(*,*) "2) BIDIMENSIONAL"
-WRITE(*,*) "3) TRIDIMENSIONAL"
-READ*,nd
-!nd = 2
+!WRITE(*,*)"NUMERO DE PARTICULAS:"
+!READ*,N
+N = 400
 
-WRITE(*,*)"NUMERO DE PARTICULAS:"
-READ*,N
-!N = 225
+!WRITE(*,*)"CONCENTRACION REDUCIDA:"
+!READ*,DENS
+PHI    = 4.4E-4
+DENS   = 6.0*PHI/PI
 
-WRITE(*,*)"CONCENTRACION REDUCIDA:"
-READ*,DENS
+!WRITE(*,*)"RAZON DE CRITERIO DE ACEPTACION"
+!READ*,ACEPT
+ACEPT = 0.5
 
-WRITE(*,*)"RAZON DE CRITERIO DE ACEPTACION"
-READ*,ACEPT
+!WRITE(*,*) "DIAMETRO DE LAS PARTICULAS:"
+!READ*,SIGMA
+SIGMA = 1.0
 
-WRITE(*,*) "DIAMETRO DE LAS PARTICULAS:"
-READ*,SIGMA
-!SIGMA = 1.0
-
-PRINT*, "NUMERO DE CONFIGURACIONES:"
-READ*, NSTEP
-
-PRINT*, "NUMERO DE CONFIGURACIONES FUERA DE EQUILIBRIO"
-READ*, NENER
-
+!PRINT*, "NUMERO DE CONFIGURACIONES:"
+!READ*, NSTEP
+NSTEP = 100000
+!PRINT*, "NUMERO DE CONFIGURACIONES FUERA DE EQUILIBRIO"
+!READ*, NENER
+NENER = 15000
 WRITE(*,*) "SEMILLA ENTERA PARA EL MOV. DE LAS PARTICULAS Y PARA EL ALGORITMO DE MC:"
 READ*, iseedn
 
-PRINT*, "FRECUENCIA DE IMPRESION EN PANTALLA:"
-READ*, IPRINT
-
-PRINT*, "FRECUENCIA DE GUARDADO DE CONFIGURACIONES:"
-READ*, ISAVE
-
-PRINT*, "FRECUENCIA PARA CORREGIR DESPLAZAMIENTO MAXIMO:"
-READ*, IRATIO
-
+!PRINT*, "FRECUENCIA DE IMPRESION EN PANTALLA:"
+!READ*, IPRINT
+IPRINT = 100
+!PRINT*, "FRECUENCIA DE GUARDADO DE CONFIGURACIONES:"
+!READ*, ISAVE
+ISAVE = 100
+!PRINT*, "FRECUENCIA PARA CORREGIR DESPLAZAMIENTO MAXIMO:"
+!READ*, IRATIO
+IRATIO = 100
 !OPEN(60,FILE="PvsDENS.dat",STATUS="REPLACE",ACTION="WRITE")
 !===============================================================================
 !CALCULOS PRELIMINARES
@@ -131,27 +135,30 @@ A=1.0/(nd*1.0)
   WRITE(FINAL, '(A,F6.3,A)') "FIN", DENS, ".dat"
   OPEN(70,FILE=FINAL,STATUS="REPLACE",ACTION="WRITE")
 
-  ALLOCATE(rnum(N,nd),xseed(N),cx(N,NN2),cy(N,NN2)) !lyr
+  ALLOCATE(rnum(N,nd),xseed(N),cx(N,NN2),cy(N,NN2),cz(N,NN2)) !lyr
 
     DO 100 ISTEP=1,NSTEP
 
       DO 90 l=1,N
         xo=x(l,1) !lyr
         yo=x(l,2) !lyr
+        zo=x(l,3)
         !ENERGIA DE LA L-ESIMA PARTICULA EN LA CONFIGURACION VIEJA
-        CALL ENER_PART(N,l,xo,yo,x,BOXL,Vold) !lyr
+        CALL ENER_PART(N,l,xo,yo,zo,x,BOXL,Vold) !lyr
 
         !MOVER A LAS PARTICULAS (MOVIMIENTO TENTATIVO)
         CALL RANDOM_NUMBER(rnum(l,:))
         xn=xo+((2.0*rnum(l,1)-1.0)*DRMAX) !lyr
         yn=yo+((2.0*rnum(l,2)-1.0)*DRMAX) !lyr
+        zn=zo+((2.0*rnum(l,3)-1.0)*DRMAX)
 
         !INCLUYENDO CONDICIONES PERIODICAS
         xn=xn-BOXL*ANINT(xn/BOXL) !lyr
         yn=yn-BOXL*ANINT(yn/BOXL) !lyr
+        zn=zn-BOXL*ANINT(zn/BOXL)
 
         !ENERGIA DE LA L-ESIMA PARTICULA EN LA CONFIGURACION NUEVA
-        CALL ENER_PART(N,l,xn,yn,x,BOXL,Vnew) !lyr
+        CALL ENER_PART(N,l,xn,yn,zn,x,BOXL,Vnew) !lyr
 
         !CRITERIOS DE ACEPTACION O RECHAZO
         DELTAV = Vnew - Vold
@@ -162,6 +169,8 @@ A=1.0/(nd*1.0)
             V = V + DELTAV
             x(l,1) = xn
             x(l,2) = yn
+            x(l,3) = zn
+
             ACATMA = ACATMA + 1.0
           END IF
 
@@ -190,22 +199,22 @@ A=1.0/(nd*1.0)
         END IF
 
 !===============================================================================
-        IF (MOD(ISTEP,ISAVE) == 0)THEN
-          IF (ISTEP < 10)THEN
-            WRITE(VIS,'(I1,A)')ISTEP,".dat"
-          ELSE IF (ISTEP < 100)THEN
-            WRITE(VIS,'(I2,A)')ISTEP,".dat"
-          ELSE IF (ISTEP < 1000)THEN
-            WRITE(VIS,'(I3,A)')ISTEP,".dat"
-          ELSE
-            WRITE(VIS,'(I4,A)')ISTEP,".dat"
-          END IF
-        END IF
-        OPEN(15,FILE=VIS,STATUS="REPLACE",ACTION="WRITE")
+!        IF (MOD(ISTEP,ISAVE) == 0)THEN
+!          IF (ISTEP < 10)THEN
+!            WRITE(VIS,'(I1,A)')ISTEP,".dat"
+!          ELSE IF (ISTEP < 100)THEN
+!            WRITE(VIS,'(I2,A)')ISTEP,".dat"
+!          ELSE IF (ISTEP < 1000)THEN
+!            WRITE(VIS,'(I3,A)')ISTEP,".dat"
+!          ELSE
+!            WRITE(VIS,'(I4,A)')ISTEP,".dat"
+!          END IF
+!        END IF
+!        OPEN(15,FILE=VIS,STATUS="REPLACE",ACTION="WRITE")
 
-        DO kk=1,N
-          write(15,*) x(kk,1),x(kk,2)
-        END DO
+!        DO kk=1,N
+!          write(15,*) x(kk,1),x(kk,2),x(kk,3)
+!        END DO
 !===============================================================================
 
         !VERIFICANDO SI DEBE ALMACENAR CONFIGURACIONES DE EQUILIBRIO
@@ -217,6 +226,7 @@ A=1.0/(nd*1.0)
           DO k=1,N
             cx(k,KI2)=x(k,1)
             cy(k,KI2)=x(k,2)
+            cz(k,KI2)=x(k,3)
           END DO
 
         END IF
@@ -225,10 +235,10 @@ A=1.0/(nd*1.0)
 
   !GUARDAR CONFIGURACION FINAL
   DO i=1,N
-      WRITE(70,*) x(i,1), x(i,2)
+      WRITE(70,*) x(i,1), x(i,2), x(i,3)
   END DO
       !CALCULO DE LA FUNCION DE DISTRIBUCION RADIAL
-      CALL GDR(cx,cy,KI2,BOXL,DENS,N,GRC,PRESION)
+      CALL GDR(cx,cy,cz,KI2,BOXL,DENS,N,GRC,PRESION)
       WRITE(60,*)GRC,PRESION,DENS
 
 
@@ -241,7 +251,7 @@ A=1.0/(nd*1.0)
   PRINT*, "ENERGIA DE LA CONF. INICIAL", VI
   PRINT*, "NUM. TOTAL DE CONFIGS.:    ", NSTEP
 !===============================================================================
-  DEALLOCATE(x,rnum,cx,cy,xseed)
+  DEALLOCATE(x,rnum,cx,cy,cz,xseed)
   CLOSE(20)
   CLOSE(70)
 !END DO
