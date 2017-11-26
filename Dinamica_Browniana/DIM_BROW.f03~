@@ -152,7 +152,7 @@ END DO
 CLOSE(20)
 CLOSE(30)
 !CALCULO DE LA FUNCION DE DISTRIBUCION RADIAL
-CALL GDR(cx,cy,cz,KI,BOXL,DENS,N,GRC)
+CALL GDR(cx,cy,cz,KI,BOXL,DENS,N,GRC,PRESION)
 CALL WDT(cxr,cyr,czr,KI2,DT,NFREC2,N)
 
 !===============================================================================
