@@ -1,6 +1,6 @@
 MODULE FRZAS
 CONTAINS
-SUBROUTINE FUERZAS(AA,ZK,RCUT,BOXL,N,ISTEP,ENPOT,x,f)
+SUBROUTINE FUERZAS(T,RCUT,BOXL,N,ISTEP,ENPOT,x,f,VIR)
 IMPLICIT REAL (A-H, O-Z)
 REAL,ALLOCATABLE::x(:,:),f(:,:)
 
@@ -34,12 +34,15 @@ DO i=1,N-1
 
     IF (rr < RCUT)THEN
       !MODELO DE POTENCIAL:YUKAWA
-	  !U = EXP(-ZK*rr)
+      !U = EXP(-ZK*rr)
       !U2 = AA*U*(ZK*rr+1.0)/(rr**3)
       !ENPOT = (AA*U)/rr+ENPOT
 
-	  !MODELO DE POTENCIAL: GAUSSIANO ATRACTIVO
-	  ENPOT = (1.0/T)**EXP(-rr**2) + ENPOT
+      !MODELO DE POTENCIAL: GAUSSIANO ATRACTIVO
+      U = -(1.0/T)*EXP(-rr**2) 
+      U2 = 2.0*U
+      ENPOT = U + ENPOT
+      
 
       fijx = rijx*U2
       fijy = rijy*U2
