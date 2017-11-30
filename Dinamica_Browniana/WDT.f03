@@ -8,7 +8,7 @@ CONTAINS
     TIM=REAL(NFREC2)*DT
     !CICLO PARA DAR LA CADENCIA EN EL BARRIMIENTO TEMPORAL
     DO i=1,KI2-1
-      NTMAX=KI2-1
+      NTMAX=KI2-i
       wtx = 0.0
       wty = 0.0
       wtz = 0.0
